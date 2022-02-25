@@ -1,7 +1,8 @@
 import re
 import glob
+import html
 
-path = "C:\\TEMP\\1645200764_5h864z\\ELO_Export_Drivve"
+path = "C:\\TEMP\\ELO"
 
 def find_ESW(path):
     text_files = glob.glob(path + "/**/*.ESW", recursive = True)
@@ -13,8 +14,8 @@ def convert_xml(path):
             lines = f.readlines()
             splitpath = file.strip().split(".")
             print(splitpath[0])
-            f = open(splitpath[0] + '.xml', 'a')
-            f.write('<?xml version="1.0" encoding="ANSI"?>\n')
+            f = open(splitpath[0] + '.xml', 'a', encoding='UTF-8',errors='ignore')
+            f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
             f.write('<elo>\n')
             oldchild = ""
             newchild = ""
@@ -22,6 +23,7 @@ def convert_xml(path):
             counter = 0
             for line in lines: 
                     counter+=1
+                    line = re.sub('\\d+=:', 'a=', line)
                     if line.find("[", 0, 1) == False:
                         oldchild = child[1]
                         child = re.split('\[|\]', line)
@@ -30,7 +32,8 @@ def convert_xml(path):
                         oldchild = child[1]
                         a = line.strip()
                         splitted = a.split("=")
-                        writeline = "<" + splitted[0].lower() + ">" + splitted[1] + "</" + splitted[0].lower() + ">\n"
+                        splitted[1] = re.sub('\\d+=:', 'a=', splitted[1])
+                        writeline = "<" + splitted[0].lower() + ">" + html.escape(splitted[1]) + "</" + splitted[0].lower() + ">\n"
                         newchild = child[1]
                         f.write(writeline)  
 
